@@ -17,17 +17,21 @@
 __all__ = ("", )
 
 
-from .logger import getLogger
+from .logger import getLogger, logging_levels
 from .configuration import dm_conf
 from .model import validator, ValidationError, Method
 from .manager import DeviceManager, DeviceManagerError
 import paho.mqtt.client
+import logging
 import threading
 import time
 import json
 
 
 logger = getLogger(__name__.split(".", 1)[-1])
+
+mqtt_logger = logging.getLogger("mqtt-client")
+mqtt_logger.setLevel(logging_levels.setdefault(dm_conf.Logger.mqtt_level, "info"))
 
 
 class Client(threading.Thread):
@@ -41,7 +45,7 @@ class Client(threading.Thread):
         self.__mqtt.on_connect = self.__onConnect
         self.__mqtt.on_disconnect = self.__onDisconnect
         self.__mqtt.on_message = self.__onMessage
-        self.__mqtt.enable_logger(logger)
+        self.__mqtt.enable_logger(mqtt_logger)
         self.__discon_count = 0
 
     def run(self) -> None:
@@ -87,7 +91,7 @@ class Client(threading.Thread):
                 self.__dm.delete(payload["device_id"])
         except ValueError as ex:
             logger.warning("malformed message - {}".format(ex))
-        except DeviceManager as ex:
+        except DeviceManagerError as ex:
             logger.error("error handling device - {}".format(ex))
         except ValidationError:
             logger.warning("message could not be validated")
