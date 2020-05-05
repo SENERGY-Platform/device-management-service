@@ -34,10 +34,11 @@ class DMConf:
         level = "info"
         mqtt_level = "info"
 
+    @simple_env_var.section
     class Client:
         name = "device-management-service"
         clean_session = False
-        devices_topic = "devices"
+        devices_topic = "device"
         keep_alive = 10
         reconnect = 5
 
