@@ -32,6 +32,7 @@ class DMConf:
     @simple_env_var.section
     class Logger:
         level = "info"
+        mqtt_level = "info"
 
     class Client:
         name = "device-management-service"
