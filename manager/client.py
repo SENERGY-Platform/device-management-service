@@ -14,13 +14,14 @@
    limitations under the License.
 """
 
-__all__ = ("", )
+__all__ = ("Client", )
 
 
 from .logger import getLogger, logging_levels
 from .configuration import dm_conf
 from .model import validator, ValidationError, Method
 from .manager import DeviceManager, DeviceManagerError
+from .util import genRegExp, matchTopic, setOffline
 import paho.mqtt.client
 import logging
 import threading
@@ -32,6 +33,10 @@ logger = getLogger(__name__.split(".", 1)[-1])
 
 mqtt_logger = logging.getLogger("mqtt-client")
 mqtt_logger.setLevel(logging_levels.setdefault(dm_conf.Logger.mqtt_level, "info"))
+
+
+device_topic_regex = genRegExp(dm_conf.Client.device_topic)
+lw_topic_regex = genRegExp(dm_conf.Client.lw_topic)
 
 
 class Client(threading.Thread):
@@ -66,7 +71,8 @@ class Client(threading.Thread):
         if rc == 0:
             self.__discon_count = 0
             logger.info("connected to '{}'".format(dm_conf.MB.host))
-            self.__mqtt.subscribe(dm_conf.Client.devices_topic)
+            self.__mqtt.subscribe(dm_conf.Client.device_topic)
+            self.__mqtt.subscribe(dm_conf.Client.lw_topic)
         else:
             logger.error("could not connect to '{}' - {}".format(dm_conf.MB.host, paho.mqtt.client.connack_string(rc)))
 
@@ -79,21 +85,33 @@ class Client(threading.Thread):
             self.__discon_count += 1
 
     def __onMessage(self, client, userdata, message: paho.mqtt.client.MQTTMessage):
-        try:
-            payload = json.loads(message.payload)
-            validator(payload)
-            logger.debug("method='{}' device_id='{}'".format(payload["method"], payload["device_id"]))
-            if payload["method"] == Method.set:
-                if not payload["data"]:
-                    raise ValueError("missing data")
-                self.__dm.set(payload["device_id"], payload["data"])
-            if payload["method"] == Method.delete:
-                self.__dm.delete(payload["device_id"])
-        except ValueError as ex:
-            logger.warning("malformed message - {}".format(ex))
-        except DeviceManagerError as ex:
-            logger.error("error handling device - {}".format(ex))
-        except ValidationError:
-            logger.warning("message could not be validated")
-        except Exception as ex:
-            logger.error("error handling message - {}".format(ex))
+        if matchTopic(message.topic, device_topic_regex):
+            try:
+                mod_id = message.topic.split("/")[dm_conf.Client.lw_topic.split("/").index("+")]
+                payload = json.loads(message.payload)
+                validator(payload)
+                logger.debug("method='{}' device_id='{}' module_id='{}'".format(payload["method"], payload["device_id"], mod_id))
+                if payload["method"] == Method.set:
+                    if not payload["data"]:
+                        raise ValueError("missing data")
+                    payload["data"]["module_id"] = mod_id
+                    self.__dm.set(payload["device_id"], payload["data"])
+                if payload["method"] == Method.delete:
+                    self.__dm.delete(payload["device_id"])
+            except ValueError as ex:
+                logger.warning("malformed message - {}".format(ex))
+            except DeviceManagerError as ex:
+                logger.error("error handling device - {}".format(ex))
+            except ValidationError:
+                logger.warning("message could not be validated")
+            except Exception as ex:
+                logger.error("error handling message - {}".format(ex))
+        elif matchTopic(message.topic, lw_topic_regex):
+            try:
+                mod_id = message.topic.split("/")[dm_conf.Client.lw_topic.split("/").index("+")]
+                logger.debug("received lwt from module_id='{}'".format(mod_id))
+                setOffline(self.__dm, mod_id)
+            except DeviceManagerError as ex:
+                logger.error("error handling device - {}".format(ex))
+            except Exception as ex:
+                logger.error("error handling message - {}".format(ex))
