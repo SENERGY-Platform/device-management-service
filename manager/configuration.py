@@ -38,7 +38,8 @@ class DMConf:
     class Client:
         name = "device-management-service"
         clean_session = False
-        devices_topic = "device"
+        device_topic = "device/+"
+        lw_topic = "device/+/lw"
         keep_alive = 10
         reconnect = 5
 
