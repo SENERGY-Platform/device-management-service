@@ -22,7 +22,7 @@ import os
 
 
 @simple_env_var.configuration
-class DMConf:
+class Conf:
 
     @simple_env_var.section
     class MB:
@@ -44,7 +44,7 @@ class DMConf:
         reconnect = 5
 
 
-dm_conf = DMConf()
+dm_conf = Conf()
 
 
 class EnvVars:
