@@ -39,6 +39,7 @@ class Conf:
         clean_session = False
         device_topic = "device/+"
         lw_topic = "device/+/lw"
+        refresh_topic = "device-manager/refresh"
         keep_alive = 10
         reconnect = 5
 
