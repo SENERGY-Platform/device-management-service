@@ -35,7 +35,7 @@ class Conf:
 
     @simple_env_var.section
     class Client:
-        name = "device-management-service"
+        name = "device-manager"
         clean_session = False
         device_topic = "device/+"
         lw_topic = "device/+/lw"
