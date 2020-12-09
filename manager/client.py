@@ -71,6 +71,7 @@ class Client(threading.Thread):
             logger.info("connected to '{}'".format(dm_conf.MB.host))
             self.__mqtt.subscribe(dm_conf.Client.device_topic)
             self.__mqtt.subscribe(dm_conf.Client.lw_topic)
+            self.__mqtt.publish(dm_conf.Client.refresh_topic, "1", 2)
         else:
             logger.error("could not connect to '{}' - {}".format(dm_conf.MB.host, paho.mqtt.client.connack_string(rc)))
 
