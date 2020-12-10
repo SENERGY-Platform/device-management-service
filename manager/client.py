@@ -56,14 +56,11 @@ class Client(threading.Thread):
         while True:
             try:
                 self.__mqtt.connect(dm_conf.MB.host, dm_conf.MB.port, keepalive=dm_conf.Client.keep_alive)
+                self.__mqtt.loop_forever()
             except Exception as ex:
                 logger.error(
                     "could not connect to '{}' on '{}' - {}".format(dm_conf.MB.host, dm_conf.MB.port, ex)
                 )
-            try:
-                self.__mqtt.loop_forever()
-            except Exception as ex:
-                logger.error("mqtt loop broke - {}".format(ex))
             time.sleep(dm_conf.Client.reconnect)
 
     def __onConnect(self, client, userdata, flags, rc):
