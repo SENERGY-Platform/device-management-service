@@ -37,8 +37,8 @@ class Conf:
     class Client:
         name = "device-manager"
         clean_session = False
-        device_topic = "device/+"
-        lw_topic = "device/+/lw"
+        device_topic = "device-manager/device/+"
+        lw_topic = "device-manager/device/+/lw"
         refresh_topic = "device-manager/refresh"
         keep_alive = 10
         reconnect = 5
