@@ -37,21 +37,30 @@ message = {
     "data": (dict, type(None))
 }
 
-
 data = {
     "name": str,
     "state": (str, type(None)),
-    "device_type": str
+    "device_type": str,
+    "attributes": (list, type(None)),
+}
+
+attribute = {
+    "key": str,
+    "value": (list, dict, int, float, bool, str),
 }
 
 
 def validate(candidate, model):
     if not isinstance(candidate, dict):
         raise ValidationError
-    if not candidate.keys() == model.keys():
-        raise ValidationError
+    for key in candidate.keys():
+        if key not in model.keys():
+            raise ValidationError
     for key, typ in model.items():
-        if not isinstance(candidate[key], typ):
+        if key not in candidate:
+            if not issubclass(type(None), typ):
+                raise ValidationError
+        elif not isinstance(candidate[key], typ):
             raise ValidationError
 
 
@@ -59,8 +68,11 @@ def validator(candidate):
     validate(candidate, message)
     if not candidate["method"] in Method.__dict__.values():
         raise ValidationError
-    if candidate["data"]:
+    if "data" in candidate:
         validate(candidate["data"], data)
-        if candidate["data"]["state"]:
+        if "state" in candidate["data"]:
             if not candidate["data"]["state"] in DeviceState.__dict__.values():
                 raise ValidationError
+        if "attributes" in candidate["data"]:
+            for att in candidate["data"]["attributes"]:
+                validate(att, attribute)
