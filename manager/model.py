@@ -46,7 +46,7 @@ data = {
 
 attribute = {
     "key": str,
-    "value": (list, dict, int, float, bool, str),
+    "value": str,
 }
 
 
