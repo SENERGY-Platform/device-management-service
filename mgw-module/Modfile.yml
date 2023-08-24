@@ -4,7 +4,7 @@ name: Device Manager
 description: Lists IoT devices connected to the gateway.
 license: Apache-2.0 license
 author: InfAI (CC SES)
-version: v0.0.1
+version: v0.0.2
 type: add-on
 deploymentType: single
 dependencies:
@@ -45,4 +45,18 @@ configs:
     userInput:
       type: text
       name: Log level
+    optional: true
+  gunicorn-log:
+    dataType: int
+    value: 0
+    options:
+      - 0
+      - 1
+    targets:
+      - refVar: GUNICORN_LOG
+        services:
+          - manager
+    userInput:
+      type: number
+      name: Server Access Log
     optional: true
