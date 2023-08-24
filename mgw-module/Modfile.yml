@@ -1,0 +1,48 @@
+modfileVersion: "v1"
+id: github.com/SENERGY-Platform/device-management-service/mgw-module
+name: Device Manager
+description: Lists IoT devices connected to the gateway.
+license: Apache-2.0 license
+author: InfAI (CC SES)
+version: v0.0.1
+type: add-on
+deploymentType: single
+dependencies:
+  github.com/SENERGY-Platform/mgw-mqtt-broker:
+    version: "<v2.0.0"
+    requiredServices:
+      broker:
+        - refVar: CONF_MB_HOST
+          services:
+            - manager
+services:
+  manager:
+    name: Device Manager
+    image: ghcr.io/senergy-platform/mgw-device-manager:0.0.1
+    ports:
+      - port: 80
+        hostPort: 7002
+configs:
+  broker-port:
+    dataType: int
+    value: 1883
+    targets:
+      - refVar: CONF_MB_PORT
+        services:
+          - manager
+  log-level:
+    value: warning
+    options:
+      - info
+      - warning
+      - error
+      - critical
+      - debug
+    targets:
+      - refVar: CONF_LOGGER_LEVEL
+        services:
+          - manager
+    userInput:
+      type: text
+      name: Log level
+    optional: true
