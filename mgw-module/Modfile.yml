@@ -4,7 +4,7 @@ name: Device Manager
 description: Lists IoT devices connected to the gateway.
 license: Apache-2.0 license
 author: InfAI (CC SES)
-version: v0.0.2
+version: v0.0.3
 type: add-on
 deploymentType: single
 dependencies:
@@ -25,7 +25,7 @@ services:
 configs:
   broker-port:
     dataType: int
-    value: 1883
+    value: 1881
     targets:
       - refVar: CONF_MB_PORT
         services:
