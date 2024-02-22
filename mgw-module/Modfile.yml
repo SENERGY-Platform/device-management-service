@@ -22,9 +22,9 @@ services:
     ports:
       - port: 80
         hostPort: 7002
-    httpEndpoints:
-      - name: API
-        extPath: "api"
+#    httpEndpoints:
+#      - name: API
+#        extPath: "api"
 configs:
   broker-port:
     dataType: int
