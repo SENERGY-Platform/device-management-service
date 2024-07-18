@@ -27,5 +27,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/senergy-platform/mgw-device-manager:latest
-            ghcr.io/senergy-platform/mgw-device-manager:${{ github.ref_name }}
+            ghcr.io/senergy-platform/mgw-device-management-service:latest
+            ghcr.io/senergy-platform/mgw-device-management-service:${{ github.ref_name }}
